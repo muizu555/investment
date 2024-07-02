@@ -23,8 +23,4 @@ services:
 
     # コンテナ内にある MySQL に格納するデータを永続化させるために使用するボリュームを指定
     volumes:
-      - db-volume:/var/lib/mysql
-
-# ボリュームの作成 
-volumes:
-  db-volume:
+      - ./data:/var/lib/mysql 
