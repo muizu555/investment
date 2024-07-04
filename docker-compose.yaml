@@ -25,6 +25,11 @@ services:
     volumes:
       - ./data:/var/lib/mysql 
       - ./createTable.sql:/docker-entrypoint-initdb.d/createTable.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
   server:
     image: golang:1.22
     ports:
@@ -39,4 +44,7 @@ services:
       - USERPASS=${MYSQL_USERPASS}
     depends_on:
       mysql:
-        condition: service_started
+        condition: service_healthy
+    
+
+        
