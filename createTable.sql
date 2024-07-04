@@ -7,8 +7,8 @@ CREATE TABLE TradeHistory (
 
 CREATE TABLE ReferencePrices (
   FundID VARCHAR(255) NOT NULL,
-  ReferencePriceDate VARCHAR(255) NOT NULL,
-  ReferencePrice BIGINT NOT NULL
+  ReferencePrice BIGINT NOT NULL,
+  ReferencePriceDate VARCHAR(255) NOT NULL
 );
 
 
