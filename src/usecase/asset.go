@@ -9,7 +9,7 @@ import (
 
 func GetUserAssets(userID string) (*domain.Asset, error) {
 	// あるuserIDのユーザーが持っている現在の日付までの取引を取得
-	trades, err := repository.GetTradesByUserID(userID)
+	assetSetting, err := repository.GetAssetSettingsByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func GetUserAssets(userID string) (*domain.Asset, error) {
 	}
 
 	//domainのエラーは...
-	currentValue, currentPL := domain.CalculateAssets(trades, todaysReferencePrices)
+	currentValue, currentPL := domain.CalculateAssets(assetSetting, todaysReferencePrices)
 
 	// TODO: 後で返すデータの型をつくる ポインタ型にするかどうか
 	return &domain.Asset{

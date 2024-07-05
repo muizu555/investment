@@ -8,7 +8,7 @@ import (
 	"github.com/muizu555/investment/src/domain"
 )
 
-func GetTradesByUserID(userID string) (domain.TradeHistories, error) {
+func GetAssetSettingsByUserID(userID string) (domain.AssetSettings, error) {
 	database := os.Getenv("DATABASE")
 	userName := os.Getenv("USERNAME")
 	userPass := os.Getenv("USERPASS")
@@ -21,23 +21,22 @@ func GetTradesByUserID(userID string) (domain.TradeHistories, error) {
 	defer db.Close()
 
 	// 現在の日付までの取引を取得
-	rows, err := db.Query("SELECT UserID, FundID, Quantity, TradeDate FROM TradeHistory WHERE UserID = ? AND TradeDate <= CURDATE()", userID)
+	rows, err := db.Query("SELECT TradeHistory.FundID, TradeHistory.Quantity, TradeHistory.TradeDate, ReferencePrices.ReferencePrice, ReferencePrices.ReferencePriceDate FROM TradeHistory INNER JOIN ReferencePrices ON TradeHistory.FundID = ReferencePrices.FundID AND TradeHistory.TradeDate = ReferencePrices.ReferencePriceDate WHERE TradeHistory.UserID = ? AND TradeHistory.TradeDate <= '2024-06-01'", userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var trades domain.TradeHistories
+	var assetSettings domain.AssetSettings
 	for rows.Next() {
-		var trade domain.TradeHistory
-		err := rows.Scan(&trade.UserID, &trade.FundID, &trade.Quantity, &trade.TradeDate)
+		var assetSetting domain.AssetSetting
+		err := rows.Scan(&assetSetting.FundID, &assetSetting.Quantity, &assetSetting.TradeDate, &assetSetting.ReferencePrice, &assetSetting.ReferencePriceDate)
 		if err != nil {
 			return nil, err
 		}
-		trades = append(trades, trade)
+		assetSettings = append(assetSettings, assetSetting)
 	}
-
-	return trades, nil
+	return assetSettings, nil
 }
 
 // /ここから関数の戻り値の型を変えることから
