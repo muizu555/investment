@@ -8,7 +8,7 @@ import (
 	"github.com/muizu555/investment/src/domain"
 )
 
-func GetAssetSettingsByUserIDANDDate(userID, date string) (*domain.Asset, error) {
+func GetAssetSettingsByUserIDANDDate(userID, date string) (domain.AssetSettings, error) {
 	database := os.Getenv("DATABASE")
 	userName := os.Getenv("USERNAME")
 	userPass := os.Getenv("USERPASS")
@@ -22,10 +22,9 @@ func GetAssetSettingsByUserIDANDDate(userID, date string) (*domain.Asset, error)
 
 	rows, err := db.Query(`
 	SELECT
-		PerFund.FundID,
-		FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000) AS AppraisedAsset,
-		PerFund.PurchasePriceSum AS PurchasePriceSum,
-		FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000) - PerFund.PurchasePriceSum AS ProfitLoss
+		SUM(FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000)) AS AppraisedAsset,
+		SUM(PerFund.PurchasePriceSum) AS PurchasePriceSum,
+		SUM(FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000) - PerFund.PurchasePriceSum) AS ProfitLoss
 	FROM (
 		SELECT
 			TH.FundID,
@@ -46,7 +45,7 @@ func GetAssetSettingsByUserIDANDDate(userID, date string) (*domain.Asset, error)
 		PerFund.FundID = RP.FundID
 	WHERE
 		RP.ReferencePriceDate = ?
-`, userID, date)
+`, userID, date, date)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,7 @@ func GetAssetSettingsByUserIDANDDate(userID, date string) (*domain.Asset, error)
 	var assetSettings domain.AssetSettings
 	for rows.Next() {
 		var assetSetting domain.AssetSetting
-		err := rows.Scan(&assetSetting.FundID, &assetSetting.Quantity, &assetSetting.TradeDate, &assetSetting.ReferencePrice, &assetSetting.ReferencePriceDate)
+		err := rows.Scan(&assetSetting.AppraisedAsset, &assetSetting.PurchasePriceSum, &assetSetting.ProfitLoss)
 		if err != nil {
 			return nil, err
 		}

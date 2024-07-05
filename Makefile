@@ -6,3 +6,8 @@ dev/run/import:
 dev/run/server:
 	. ./.env
 	docker compose up -d
+
+restart: dev/run/down dev/run/server
+
+dev/run/down:
+	docker compose down
