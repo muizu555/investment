@@ -5,14 +5,17 @@ package domain
 // TODO: 外部キー制約についてfundID
 type ReferencePrice struct {
 	FundID             string
-	ReferencePriceDate string
 	ReferencePrice     int
+	ReferencePriceDate string
 }
 
-func NewReferencePrice(fundID, referencePriceDate string, referencePrice int) *ReferencePrice {
+func NewReferencePrice(fundID string, referencePrice int, referencePriceDate string) *ReferencePrice {
 	return &ReferencePrice{
 		FundID:             fundID,
-		ReferencePriceDate: referencePriceDate,
 		ReferencePrice:     referencePrice,
+		ReferencePriceDate: referencePriceDate,
 	}
 }
+
+// ポインタにするかどうか
+type ReferencePrices []ReferencePrice

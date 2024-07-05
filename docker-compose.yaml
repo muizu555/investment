@@ -13,8 +13,8 @@ services:
       MYSQL_ROOT_USER: ${ROOTUSER} # MySQLのルートユーザー名
       MYSQL_ROOT_PASSWORD: ${ROOTPASS} # MySQLのルートユーザーのパスワード 
       MYSQL_DATABASE: ${DATABASE} # MySQLに用意されている初期データベースの名前 
-      MYSQL_USER: ${USERNAME} # MySQLのユーザー名
-      MYSQL_PASSWORD: ${USERPASS} # MySQLのユーザーパスワード
+      MYSQL_USER: ${MYSQL_USERNAME} # MySQLのユーザー名
+      MYSQL_PASSWORD: ${MYSQL_USERPASS} # MySQLのユーザーパスワード
       TZ: 'Asia/Tokyo'
 
     # コンテナの 3306 番ポートを、ローカルの 3306 番ポートにつなげる
@@ -24,3 +24,27 @@ services:
     # コンテナ内にある MySQL に格納するデータを永続化させるために使用するボリュームを指定
     volumes:
       - ./data:/var/lib/mysql 
+      - ./createTable.sql:/docker-entrypoint-initdb.d/createTable.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
+  server:
+    image: golang:1.22
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: go run src/cmd/server/main.go
+    environment:
+      - DATABASE=${DATABASE}
+      - USERNAME=${MYSQL_USERNAME}
+      - USERPASS=${MYSQL_USERPASS}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    
+
+        

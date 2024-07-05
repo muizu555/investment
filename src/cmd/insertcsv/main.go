@@ -51,7 +51,7 @@ func main() {
 	userPass := os.Getenv("USERPASS")
 
 	// DSNを構築
-	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s", userName, userPass, database)
+	dsn := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s", userName, userPass, database)
 
 	// MySQLデータベースに接続
 	db, err := sql.Open("mysql", dsn)
@@ -73,7 +73,7 @@ func main() {
 	}
 
 	// ReferencePricesテーブルにデータを挿入
-	insertStmt2 := "INSERT INTO ReferencePrices (FundID, ReferencePriceDate, ReferencePrice) VALUES (?, ?, ?)"
+	insertStmt2 := "INSERT INTO ReferencePrices (FundID, ReferencePrice, ReferencePriceDate) VALUES (?, ?, ?)"
 	for i, row := range rows2 {
 		if i == 0 {
 			continue
