@@ -20,8 +20,33 @@ func GetAssetSettingsByUserID(userID string) (domain.AssetSettings, error) {
 	}
 	defer db.Close()
 
-	// 現在の日付までの取引を取得
-	rows, err := db.Query("SELECT TradeHistory.FundID, TradeHistory.Quantity, TradeHistory.TradeDate, ReferencePrices.ReferencePrice, ReferencePrices.ReferencePriceDate FROM TradeHistory INNER JOIN ReferencePrices ON TradeHistory.FundID = ReferencePrices.FundID AND TradeHistory.TradeDate = ReferencePrices.ReferencePriceDate WHERE TradeHistory.UserID = ? AND TradeHistory.TradeDate <= '2024-06-01'", userID)
+	rows, err := db.Query(`
+	SELECT
+		PerFund.FundID,
+		FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000) AS AppraisedAsset,
+		PerFund.PurchasePriceSum AS PurchasePriceSum,
+		FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000) - PerFund.PurchasePriceSum AS ProfitLoss
+	FROM (
+		SELECT
+			TH.FundID,
+			SUM(TH.Quantity) AS QuantitySum,
+			SUM(FLOOR(TH.Quantity * RP.ReferencePrice / 10000)) AS PurchasePriceSum
+		FROM TradeHistory AS TH
+		JOIN ReferencePrices AS RP
+		ON
+			TH.FundID = RP.FundID AND
+			TH.TradeDate = RP.ReferencePriceDate
+		WHERE
+			TH.UserID = ? AND
+			RP.ReferencePriceDate <= '2024-06-01'
+		GROUP BY TH.FundID
+	) AS PerFund
+	JOIN ReferencePrices AS RP
+	ON
+		PerFund.FundID = RP.FundID
+	WHERE
+		RP.ReferencePriceDate = '2024-06-01'
+`, userID)
 	if err != nil {
 		return nil, err
 	}
