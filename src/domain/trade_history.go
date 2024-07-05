@@ -16,3 +16,14 @@ func NewTradeHistory(userID, fundID string, quantity int, tradeDate string) *Tra
 		TradeDate: tradeDate,
 	}
 }
+
+// ポインタにするかどうか
+type TradeHistories []TradeHistory
+
+func (ths TradeHistories) GetTotalAmount() int {
+	totalAmount := 0
+	for _, th := range ths {
+		totalAmount += th.Quantity
+	}
+	return totalAmount
+}
