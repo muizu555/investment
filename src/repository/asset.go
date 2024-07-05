@@ -8,7 +8,7 @@ import (
 	"github.com/muizu555/investment/src/domain"
 )
 
-func GetAssetSettingsByUserID(userID string) (domain.AssetSettings, error) {
+func GetAssetSettingsByUserIDANDDate(userID, date string) (*domain.Asset, error) {
 	database := os.Getenv("DATABASE")
 	userName := os.Getenv("USERNAME")
 	userPass := os.Getenv("USERPASS")
@@ -38,15 +38,15 @@ func GetAssetSettingsByUserID(userID string) (domain.AssetSettings, error) {
 			TH.TradeDate = RP.ReferencePriceDate
 		WHERE
 			TH.UserID = ? AND
-			RP.ReferencePriceDate <= '2024-06-01'
+			RP.ReferencePriceDate <= ?
 		GROUP BY TH.FundID
 	) AS PerFund
 	JOIN ReferencePrices AS RP
 	ON
 		PerFund.FundID = RP.FundID
 	WHERE
-		RP.ReferencePriceDate = '2024-06-01'
-`, userID)
+		RP.ReferencePriceDate = ?
+`, userID, date)
 	if err != nil {
 		return nil, err
 	}
