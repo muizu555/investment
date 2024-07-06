@@ -7,8 +7,10 @@ import (
 
 // TODO: main.goで呼び出すようにするのもありだな...
 func SetupRoutes(e *echo.Echo) {
-	// step 3
+	// step 3 (count0の時のエラーを考える)
 	e.GET("/:user_id/trades", handler.GetTradeCount)
-	// step 4
+	// step 4, 5
 	e.GET("/:user_id/assets", handler.GetUserAssets)
+	// step 6
+	e.GET("/:user_id/assets/byYear", handler.GetUserAssetsByYear)
 }
