@@ -15,11 +15,20 @@ func GetUserAssets(userID, date string) (*domain.Asset, error) {
 		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
 	}
 
+	// 現在の日時or指定された日時のReferencePriceが存在するか確認
+	exist, err := repository.ExistReferencePriceByDate(date)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("date %s has no ReferencePrices: %w", date, domain.ErrNotFound)
+	}
+
 	assetSettings, err := repository.GetAssetSettingsByUserIDAndDate(userID, date)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: 後で返すデータの型をつくる ポインタ型にするかどうか
+
 	return &domain.Asset{
 		Data:         date,
 		CurrentValue: assetSettings[0].AppraisedAsset,
@@ -33,11 +42,20 @@ func GetUserAssetYears(userID, date string) (*domain.AssetResponse, error) {
 		// 特定のUserIDの取引データがない場合
 		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
 	}
-	// あるuserIDのユーザーが持っている取引の年を取得
+
+	exist, err := repository.ExistReferencePriceByDate(date)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("date %s has no ReferencePrices: %w", date, domain.ErrNotFound)
+	}
+
 	assetYearSettings, err := repository.GetAssetYearsByUserID(userID, date)
 	if err != nil {
 		return nil, err
 	}
+
 	assets := make(domain.AssetYears, len(assetYearSettings))
 	for i, assetYearSetting := range assetYearSettings {
 		year, _ := strconv.Atoi(assetYearSetting.TradeYear)
