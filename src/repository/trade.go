@@ -10,7 +10,7 @@ import (
 
 // TODO: repositoryの名前が少し変な気がする...(ex.GetTradeHistoryCounts?)
 // 全体でDIをしてわざわざdbを作らないようにする
-func GetTradeCount(userID string) (int, error) {
+func GetTradeCountByUserID(userID string) (int, error) {
 	database := os.Getenv("DATABASE")
 	userName := os.Getenv("USERNAME")
 	userPass := os.Getenv("USERPASS")
