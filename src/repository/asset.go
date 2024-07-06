@@ -8,7 +8,7 @@ import (
 	"github.com/muizu555/investment/src/domain"
 )
 
-func GetAssetSettingsByUserIDANDDate(userID, date string) (domain.AssetSettings, error) {
+func GetAssetSettingsByUserIDAndDate(userID, date string) (domain.AssetSettings, error) {
 	database := os.Getenv("DATABASE")
 	userName := os.Getenv("USERNAME")
 	userPass := os.Getenv("USERPASS")

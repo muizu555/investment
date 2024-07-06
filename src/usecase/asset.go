@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/muizu555/investment/src/domain"
@@ -8,12 +9,16 @@ import (
 )
 
 func GetUserAssets(userID, date string) (*domain.Asset, error) {
-	// あるuserIDのユーザーが持っている現在の日付までの取引を取得
-	assetSettings, err := repository.GetAssetSettingsByUserIDANDDate(userID, date)
+	count, _ := repository.GetTradeCountByUserID(userID)
+	if count == 0 {
+		// 特定のUserIDの取引データがない場合
+		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
+	}
+
+	assetSettings, err := repository.GetAssetSettingsByUserIDAndDate(userID, date)
 	if err != nil {
 		return nil, err
 	}
-
 	// TODO: 後で返すデータの型をつくる ポインタ型にするかどうか
 	return &domain.Asset{
 		Data:         date,
@@ -23,6 +28,11 @@ func GetUserAssets(userID, date string) (*domain.Asset, error) {
 }
 
 func GetUserAssetYears(userID, date string) (*domain.AssetResponse, error) {
+	count, _ := repository.GetTradeCountByUserID(userID)
+	if count == 0 {
+		// 特定のUserIDの取引データがない場合
+		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
+	}
 	// あるuserIDのユーザーが持っている取引の年を取得
 	assetYearSettings, err := repository.GetAssetYearsByUserID(userID, date)
 	if err != nil {
