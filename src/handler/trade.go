@@ -15,7 +15,7 @@ func GetTradeCount(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	if count == 0 {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "No User data found"})
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "no trade data found for the specified user_id"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]int{"count": count})

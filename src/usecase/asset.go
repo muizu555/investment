@@ -43,6 +43,7 @@ func GetUserAssetYears(userID, date string) (*domain.AssetResponse, error) {
 		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
 	}
 
+	// 現在の日時のReferencePriceが存在するか確認
 	exist, err := repository.ExistReferencePriceByDate(date)
 	if err != nil {
 		return nil, err
