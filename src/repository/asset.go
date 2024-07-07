@@ -8,18 +8,7 @@ import (
 	"github.com/muizu555/investment/src/domain"
 )
 
-func GetAssetSettingsByUserIDANDDate(userID, date string) (domain.AssetSettings, error) {
-	database := os.Getenv("DATABASE")
-	userName := os.Getenv("USERNAME")
-	userPass := os.Getenv("USERPASS")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s", userName, userPass, database)
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
+func GetAssetSettingsByUserIDAndDate(userID, date string) (domain.AssetSettings, error) {
 	rows, err := db.Query(`
 	SELECT
 		SUM(FLOOR(PerFund.QuantitySum * RP.ReferencePrice / 10000)) AS AppraisedAsset,

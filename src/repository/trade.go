@@ -1,31 +1,30 @@
 package repository
 
 import (
-	"database/sql"
-	"fmt"
-	"os"
-
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // TODO: repositoryの名前が少し変な気がする...(ex.GetTradeHistoryCounts?)
 // 全体でDIをしてわざわざdbを作らないようにする
-func GetTradeCount(userID string) (int, error) {
-	database := os.Getenv("DATABASE")
-	userName := os.Getenv("USERNAME")
-	userPass := os.Getenv("USERPASS")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s", userName, userPass, database)
-	db, err := sql.Open("mysql", dsn)
+func GetTradeCountByUserID(userID string) (int, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM TradeHistory WHERE UserID = ?", userID).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
-	defer db.Close()
+	return count, nil
+}
 
+func ExistTradeByUserIDAndDate(userID, date string) (int, error) {
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM TradeHistory WHERE UserID = ?", userID).Scan(&count)
+	// dateより前のTradeHistoryが存在するか確認
+	err := db.QueryRow("SELECT COUNT(*) FROM TradeHistory WHERE UserID = ? AND TradeDate <= ?", userID, date).Scan(&count)
 	if err != nil {
 		return 0, err
+	}
+
+	if count == 0 {
+		return 0, nil
 	}
 	return count, nil
 }

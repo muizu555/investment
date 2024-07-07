@@ -29,7 +29,6 @@ type AssetResponse struct {
 	Assets AssetYears `json:"assets"`
 }
 
-// 一年ごとのAssetSetting(Yearを最初に追加)
 type AssetYearSetting struct {
 	TradeYear        string
 	AppraisedAsset   int

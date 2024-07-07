@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/muizu555/investment/src/domain"
@@ -8,13 +9,32 @@ import (
 )
 
 func GetUserAssets(userID, date string) (*domain.Asset, error) {
-	// あるuserIDのユーザーが持っている現在の日付までの取引を取得
-	assetSettings, err := repository.GetAssetSettingsByUserIDANDDate(userID, date)
+	count, _ := repository.GetTradeCountByUserID(userID)
+	if count == 0 {
+		// 特定のUserIDの取引データがない場合
+		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
+	}
+
+	// 現在の日時or指定された日時のReferencePriceが存在するか確認
+	exist, err := repository.ExistReferencePriceByDate(date)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("date %s has no ReferencePrices: %w", date, domain.ErrNotFound)
+	}
+
+	count, err = repository.ExistTradeByUserIDAndDate(userID, date)
+	if count == 0 {
+		// 特定のUserIDの指定された日時の取引データがない場合
+		return nil, fmt.Errorf("userID %s, date %s: %w", userID, date, domain.ErrNotFound)
+	}
+
+	assetSettings, err := repository.GetAssetSettingsByUserIDAndDate(userID, date)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: 後で返すデータの型をつくる ポインタ型にするかどうか
 	return &domain.Asset{
 		Data:         date,
 		CurrentValue: assetSettings[0].AppraisedAsset,
@@ -23,11 +43,26 @@ func GetUserAssets(userID, date string) (*domain.Asset, error) {
 }
 
 func GetUserAssetYears(userID, date string) (*domain.AssetResponse, error) {
-	// あるuserIDのユーザーが持っている取引の年を取得
+	count, _ := repository.GetTradeCountByUserID(userID)
+	if count == 0 {
+		// 特定のUserIDの取引データがない場合
+		return nil, fmt.Errorf("userID %s: %w", userID, domain.ErrNotFound)
+	}
+
+	// 現在の日時のReferencePriceが存在するか確認
+	exist, err := repository.ExistReferencePriceByDate(date)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("date %s has no ReferencePrices: %w", date, domain.ErrNotFound)
+	}
+
 	assetYearSettings, err := repository.GetAssetYearsByUserID(userID, date)
 	if err != nil {
 		return nil, err
 	}
+
 	assets := make(domain.AssetYears, len(assetYearSettings))
 	for i, assetYearSetting := range assetYearSettings {
 		year, _ := strconv.Atoi(assetYearSetting.TradeYear)

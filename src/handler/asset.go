@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -17,6 +18,9 @@ func GetUserAssets(c echo.Context) error {
 
 	assets, err := usecase.GetUserAssets(userID, date)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return c.JSON(http.StatusOK, assets)
@@ -29,6 +33,9 @@ func GetUserAssetsByYear(c echo.Context) error {
 
 	assets, err := usecase.GetUserAssetYears(userID, date)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return c.JSON(http.StatusOK, assets)
