@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"log"
@@ -10,6 +9,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/muizu555/investment/src/repository"
 )
 
 func main() {
@@ -46,19 +46,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// 環境変数から接続情報を取得
-	database := os.Getenv("DATABASE")
-	userName := os.Getenv("USERNAME")
-	userPass := os.Getenv("USERPASS")
-
-	// DSNを構築
-	dsn := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s", userName, userPass, database)
-
-	// MySQLデータベースに接続
-	db, err := sql.Open("mysql", dsn)
+	err = repository.InitDB()
 	if err != nil {
 		log.Fatal(err)
 	}
+	db := repository.GetDB()
 	defer db.Close()
 
 	// TradeHistoryテーブルにデータを一度に挿入
