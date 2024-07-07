@@ -24,6 +24,12 @@ func GetUserAssets(userID, date string) (*domain.Asset, error) {
 		return nil, fmt.Errorf("date %s has no ReferencePrices: %w", date, domain.ErrNotFound)
 	}
 
+	count, err = repository.ExistTradeByUserIDAndDate(userID, date)
+	if count == 0 {
+		// 特定のUserIDの指定された日時の取引データがない場合
+		return nil, fmt.Errorf("userID %s, date %s: %w", userID, date, domain.ErrNotFound)
+	}
+
 	assetSettings, err := repository.GetAssetSettingsByUserIDAndDate(userID, date)
 	if err != nil {
 		return nil, err

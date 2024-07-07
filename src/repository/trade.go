@@ -14,3 +14,17 @@ func GetTradeCountByUserID(userID string) (int, error) {
 	}
 	return count, nil
 }
+
+func ExistTradeByUserIDAndDate(userID, date string) (int, error) {
+	var count int
+	// dateより前のTradeHistoryが存在するか確認
+	err := db.QueryRow("SELECT COUNT(*) FROM TradeHistory WHERE UserID = ? AND TradeDate <= ?", userID, date).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	if count == 0 {
+		return 0, nil
+	}
+	return count, nil
+}

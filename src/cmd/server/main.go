@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/muizu555/investment/src/repository"
-	"github.com/muizu555/investment/src/router.go"
+	"github.com/muizu555/investment/src/router"
 )
 
 func main() {
